@@ -26,7 +26,7 @@ OUTPUT_DIR   = "/kaggle/working"
 
 def show_preprocessing_samples(df: pd.DataFrame, n_per_class: int = 3):
 
-    print( "-" * 65)
+    print("-" * 65)
     print("       MINH HỌA TRƯỚC / SAU PREPROCESSING")
     print("=" * 65)
 
@@ -63,6 +63,11 @@ def show_preprocessing_samples(df: pd.DataFrame, n_per_class: int = 3):
     out = os.path.join(OUTPUT_DIR, "preprocessing_samples.png")
     plt.savefig(out, dpi=120, bbox_inches="tight")
     plt.show()
+    
+    print(f"\n  → Ảnh minh họa trước/sau preprocessing đã lưu tại:")
+    print(f"     {out}")
+    print(f"  → Gồm {n_per_class} ảnh NORMAL + {n_per_class} ảnh PNEUMONIA")
+    print(f"     Mỗi cặp: ảnh gốc (hàng trên) | sau resize {IMG_SIZE}×{IMG_SIZE} + normalize (hàng dưới)")
     print("=" * 65)
 
 
@@ -93,7 +98,6 @@ def split_dataset(df: pd.DataFrame) -> tuple:
               f"PNEUMONIA={counts.get('PNEUMONIA',0):>5,}")
 
     print(f"\n  Tỉ lệ  : Train={TRAIN_RATIO:.0%}  Val={VAL_RATIO:.0%}  Test={TEST_RATIO:.0%}")
-
 
     for name, subset in [("train", df_train), ("val", df_val), ("test", df_test)]:
         out_path = os.path.join(OUTPUT_DIR, f"split_{name}.csv")
@@ -149,13 +153,17 @@ def show_augmentation_preview(df: pd.DataFrame, n_samples: int = 4):
     out = os.path.join(OUTPUT_DIR, "augmentation_preview.png")
     plt.savefig(out, dpi=120, bbox_inches="tight")
     plt.show()
+
+    # ── BỔ SUNG: In rõ đường dẫn ảnh augmentation ──
+    print(f"\n  → Ảnh minh họa augmentation đã lưu tại:")
+    print(f"     {out}")
+    print(f"  → Gồm {n_samples} ảnh mẫu × {n_aug} kiểu augmentation")
     print("=" * 65)
 
 
 def run_preprocessing() -> tuple:
     df = pd.read_csv(FILTERED_CSV)
     print(f"  Đã load: {len(df):,} ảnh\n")
-
 
     show_preprocessing_samples(df)
     df_train, df_val, df_test = split_dataset(df)
@@ -165,8 +173,22 @@ def run_preprocessing() -> tuple:
     except ImportError:
         print("    torchvision chưa cài — bỏ qua augmentation preview")
 
-    print("   PREPROCESSING HOÀN TẤT!")
-    print(f"  → split_train.csv / split_val.csv / split_test.csv")
+    print("\n" + "=" * 65)
+    print("   PREPROCESSING HOÀN TẤT – DANH SÁCH FILE OUTPUT")
+    print("=" * 65)
+    output_files = {
+        "preprocessing_samples.png" : "Ảnh minh họa trước/sau preprocessing (NORMAL & PNEUMONIA)",
+        "augmentation_preview.png"  : "Ảnh minh họa các kiểu augmentation trên train set",
+        "split_train.csv"           : f"Tập train  — {len(df_train):,} ảnh",
+        "split_val.csv"             : f"Tập val    — {len(df_val):,} ảnh",
+        "split_test.csv"            : f"Tập test   — {len(df_test):,} ảnh",
+    }
+    for fname, desc in output_files.items():
+        full_path = os.path.join(OUTPUT_DIR, fname)
+        exists    = "✓" if os.path.exists(full_path) else "✗ CHƯA TẠO"
+        print(f"  [{exists}] {fname:<35} ← {desc}")
+        print(f"        {full_path}")
+
     print("=" * 65)
 
     return df_train, df_val, df_test
