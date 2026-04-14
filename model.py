@@ -33,4 +33,4 @@ if __name__ == "__main__":
     x = torch.randn(1, 3, 224, 224)
     y = model(x)
 
-    print("Output shape:", y.shape)  # expect [1, 2]
+    print("Output shape:", y.shape)  
